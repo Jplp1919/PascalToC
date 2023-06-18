@@ -92,58 +92,79 @@ public class Parser {
 
             //
         }
+
     }
 
     public void functionParamName(Function f) throws IncorrectGrammarException {
-        // while (!tokenBucket.getType().equals("TwoPoints")) {
+        String paramNames = "";
         Var v = new Var();
         if (tokenBucket.getType().equals("String")) {
 
-            // v.setName(tokenBucket.getContent());
-            f.addName(tokenBucket.getContent());
-            position++;
-            tokenBucket = tokens.get(position);
+            while (true) {
 
-            if (tokenBucket.getType().equals("Comma")) {
-                //next param name 
-                position++;
-                tokenBucket = tokens.get(position);
-                if (tokenBucket.getType().equals("String")) {
-                    //v.setName(tokenBucket.getContent());
-                    f.addName(tokenBucket.getContent());
+                if (tokenBucket.getType().equals("Comma")) {
+
                     position++;
                     tokenBucket = tokens.get(position);
+                    if (!tokenBucket.getType().equals("String")) {
+                        throw new IncorrectGrammarException("EXPECTED A NAME, FOUND: " + tokenBucket.getContent());
+                    }
+
+                } else if (tokenBucket.getType().equals("TwoPoints")) {
+                    f.addName(paramNames);
+                    System.out.println(paramNames);
+                    paramNames = "";
+                    position++;
+                    tokenBucket = tokens.get(position);
+
+                    this.functionParamType(f);
+
+                    position++;
+                    tokenBucket = tokens.get(position);
+
+                } else if (tokenBucket.getType().equals("EndPoint")) {
+
+                    position++;
+                    tokenBucket = tokens.get(position);
+
+                } else if (tokenBucket.getType().equals("CloseParentheses")) {
+
+                    break;
+
+                } else if (tokenBucket.getType().equals("String")) {
+                    paramNames = paramNames + tokenBucket.getContent() + " ";
+
+                    position++;
+                    tokenBucket = tokens.get(position);
+
                 } else {
-                    throw new IncorrectGrammarException("EXPECTED NAME");
+                    throw new IncorrectGrammarException("EXPECTED COMMA, FOUND: " + tokenBucket.getContent());
                 }
-            } else if (tokenBucket.getType().equals("TwoPoints")) {
+            }
+
+            position++;
+            tokenBucket = tokens.get(position);
+
+            if (tokenBucket.getType().equals("TwoPoints")) {
 
                 position++;
                 tokenBucket = tokens.get(position);
-                this.functionParamType(f);
-                //System.out.println(tokenBucket.getContent());
-
-            } else if (tokenBucket.getType().equals("EndPoint")) {
-                // System.out.println("it ends");
+                this.functionType(f);
 
             } else {
-                throw new IncorrectGrammarException("EXPECTED COMMA");
+                throw new IncorrectGrammarException("EXPECTED TWO POINTS, FOUND: " + tokenBucket.getContent());
             }
         }
-        //}
-        /* if (tokenBucket.getType().equals("TwoPoints")) {
-            position++;
-            tokenBucket = tokens.get(position);
-            this.functionParamType(f);
-        }*/
     }
 
     public void functionParamType(Function f) throws IncorrectGrammarException {
-    if (tokenBucket.getType().equals("String") || tokenBucket.getType().equals("StringType")) {
+
+        if (tokenBucket.getType().equals("String") || tokenBucket.getType().equals("StringType")) {
             f.addType(varType.String);
         } else if (tokenBucket.getType().equals("Integer")) {
             f.addType(varType.Integer);
         } else if (tokenBucket.getType().equals("Real")) {
+
             f.addType(varType.Real);
         } else if (tokenBucket.getType().equals("Character")) {
             f.addType(varType.Character);
@@ -155,7 +176,7 @@ public class Parser {
     }
 
     public void functionType(Function f) throws IncorrectGrammarException {
-        if (tokenBucket.getType().equals("String") || tokenBucket.getType().equals("StringType")) {
+        if (tokenBucket.getType().equals("StringType")) {
             f.setReturnType(varType.String);
         } else if (tokenBucket.getType().equals("Integer")) {
             f.setReturnType(varType.Integer);
@@ -189,7 +210,8 @@ public class Parser {
                 tokenBucket = tokens.get(position);
 
                 functionParamName(f);
-
+                functions.add(f);
+                System.out.println("ADDED 1");
             } else {
                 throw new IncorrectGrammarException("EXPECTED (");
             }
@@ -334,13 +356,45 @@ public class Parser {
         }
 
         for (int i = 0; i < functions.size(); i++) {
+            String functionContent = "";
+            System.out.println("inside");
             stb.append('\n');
             Function f = new Function();
             f = functions.get(i);
+            String append = f.returnType + " " + f.getFunctionName();
+            ArrayList<String> list = new ArrayList<>();
+            ArrayList<varType> typeList = new ArrayList<>();
+            list = f.getNames();
+            typeList = f.getParametersTypes();
+            if (list.isEmpty()) {
+                append = append + " (){";
+            } else {
+                for (int j = 0; j < list.size(); j++) {
+                    String st = typeList.get(j).toString();
+                    String s = list.get(j);
+                    String[] splited = s.split("\\s+");
+           
+                    System.out.println(splited.length);
+                    s = "";
+                    for (int k = 0; k < splited.length; k++) {
+                        s = s + " " + st + " " + splited[k];
+                        
+                       if(j+1 != list.size()){
+                           s = s + ",";
+                       }   
+                    }
+                    functionContent = functionContent + s;
+
+                }
+                append = append + " (" + functionContent + ")" + " :";
+                //System.out.println(list.get(i));
+            }
+
+            stb.append(append);
 
         }
 
-        // System.out.println(stb);
+        System.out.println(stb);
         //System.out.println(tokenBucket.getContent());
     }
 

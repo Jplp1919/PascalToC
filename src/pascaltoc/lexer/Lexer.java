@@ -195,7 +195,7 @@ public class Lexer {
 
                 while (Character.isAlphabetic(bucket) || Character.isDigit(bucket) && position < code.length()) {
                     read();
-                    if (Character.isAlphabetic(bucket)) {
+                    if (Character.isAlphabetic(bucket)|| Character.isDigit(bucket) && position < code.length()) {
                         stb.append(bucket);
                     }
 

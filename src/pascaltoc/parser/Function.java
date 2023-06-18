@@ -10,21 +10,29 @@ public class Function {
 
     ArrayList<String> names = new ArrayList<>();
     varType returnType;
-    ArrayList<Var> parameters;
-    ArrayList<varType> parametersTypes;
+    //ArrayList<Var> parameters = new ArrayList<>();
+    ArrayList<varType> parametersTypes = new ArrayList<>();
     String functionName;
 
     public String getFunctionName() {
         return functionName;
     }
 
+    public ArrayList<String> getNames() {
+        return names;
+    }
+
+    public ArrayList<varType> getParametersTypes() {
+        return parametersTypes;
+    }
+
+    
+    
     public void setFunctionName(String functionName) {
         this.functionName = functionName;
     }
 
-    public void addParam(Var v) {
-        this.parameters.add(v);
-    }
+
 
     public void addType(varType vt){
         this.parametersTypes.add(vt);
@@ -42,12 +50,5 @@ public class Function {
         this.returnType = returnType;
     }
 
-    public ArrayList<Var> getParameters() {
-        return parameters;
-    }
-
-    public void setParameters(ArrayList<Var> parameters) {
-        this.parameters = parameters;
-    }
 
 }

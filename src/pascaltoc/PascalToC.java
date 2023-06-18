@@ -15,8 +15,8 @@ public class PascalToC {
 
         //lex.scan("22aa :=33<>");
         Parser pedro = new Parser();
-       pedro.parse("program butts; uses libone, libtwo; var varname : string; nametoo :  2.9; "
-                + "function functionname (argumentname: argumenttype);");
+       pedro.parse("program pname; uses libone, libtwo; var varname : string; nametoo :  2.9; "
+                + "function functionname (argumentname, argumentsecond, thirdone3: real; second: boolean ) : Integer;");
 
         /*String code = "program number;\n"
                 + " (* add line numbers to each line of an input file *)\n"
