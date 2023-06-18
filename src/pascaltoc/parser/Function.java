@@ -7,19 +7,32 @@ package pascaltoc.parser;
 import java.util.ArrayList;
 
 public class Function {
+
     ArrayList<String> names = new ArrayList<>();
     varType returnType;
     ArrayList<Var> parameters;
+    ArrayList<varType> parametersTypes;
+    String functionName;
 
-    
-    public void addParam(Var v){
+    public String getFunctionName() {
+        return functionName;
+    }
+
+    public void setFunctionName(String functionName) {
+        this.functionName = functionName;
+    }
+
+    public void addParam(Var v) {
         this.parameters.add(v);
     }
+
+    public void addType(varType vt){
+        this.parametersTypes.add(vt);
+    }
     
-    public void addName(String s){
+    public void addName(String s) {
         this.names.add(s);
     }
- 
 
     public varType getReturnType() {
         return returnType;
@@ -36,7 +49,5 @@ public class Function {
     public void setParameters(ArrayList<Var> parameters) {
         this.parameters = parameters;
     }
-    
-    
-    
+
 }

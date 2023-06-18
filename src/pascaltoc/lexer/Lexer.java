@@ -81,13 +81,14 @@ public class Lexer {
                 if (bucket == ' ' || bucket == '\t') {
                     //continue;
                 } else if (bucket == '\n') {
+
                     line = line + 1;
                 } else {
                     break;
                 }
             }
 
-            //System.out.println("In the bucket: " + bucket);
+            // System.out.println("In the bucket: " + bucket);
             content = "";
 
             if (bucket == '+') {
@@ -95,14 +96,20 @@ public class Lexer {
                 Token t = new Token(TokenType.Plus, content);
                 tokenHash.put(order, t);
                 order++;
-
+                read();
+            } else if (bucket == '\'') {
+                content = "'";
+                Token t = new Token(TokenType.Apostrophe, content);
+                tokenHash.put(order, t);
+                order++;
+                read();
             } else if (bucket == '-') {
 
                 content = "-";
                 Token t = new Token(TokenType.Minus, content);
                 tokenHash.put(order, t);
                 order++;
-
+                read();
             } else if (bucket == '=') {
 
                 //content = "=";
@@ -111,9 +118,9 @@ public class Lexer {
                 tokenHash.put(order, t);
                 order++;
 
-                Token test = tokenHash.get(order - 1);
-                System.out.println(test.getContent());
-                System.out.println(test.getType());
+                // Token test = tokenHash.get(order - 1);
+                //System.out.println(test.getContent());
+                // System.out.println(test.getType());
                 if (position < s.length()) {
                     read();
 
@@ -128,9 +135,6 @@ public class Lexer {
                     tokenHash.put(order, t);
                     order++;
 
-                    Token test = tokenHash.get(order - 1);
-                    System.out.println(test.getContent());
-                    System.out.println(test.getType());
                     if (position < s.length()) {
                         read();
 
@@ -145,10 +149,6 @@ public class Lexer {
                     tokenHash.put(order, t);
                     order++;
 
-                    Token test = tokenHash.get(order - 1);
-                    System.out.println(test.getContent());
-                    System.out.println(test.getType());
-
                 } else {
                     content = ":";
                     Token t = new Token(TokenType.TwoPoints, content);
@@ -157,6 +157,12 @@ public class Lexer {
                     read();
                 }
 
+            } else if (bucket == '\n') {
+                content = "\n";
+                Token t = new Token(TokenType.NewLine, content);
+                tokenHash.put(order, t);
+                order++;
+                read();
             } else if (bucket == ';') {
 
                 content = ";";
@@ -170,19 +176,19 @@ public class Lexer {
                 tokenHash.put(order, t);
                 order++;
                 read();
-            }else if(bucket == '('){
-            content = "(";
+            } else if (bucket == '(') {
+                content = "(";
                 Token t = new Token(TokenType.OpenParentheses, content);
                 tokenHash.put(order, t);
                 order++;
                 read();
-            } else if(bucket == ')'){
-             content = ")";
+            } else if (bucket == ')') {
+                content = ")";
                 Token t = new Token(TokenType.CloseParentheses, content);
                 tokenHash.put(order, t);
                 order++;
                 read();
-            }else if (Character.isAlphabetic(bucket)) {
+            } else if (Character.isAlphabetic(bucket)) {
                 StringBuilder stb = new StringBuilder();
 
                 stb.append(bucket);
@@ -314,9 +320,14 @@ public class Lexer {
                     Token t = new Token(TokenType.StringType, content);
                     tokenHash.put(order, t);
                     order++;
-                } else if (content.equalsIgnoreCase("Character")) {
+                } else if (content.equalsIgnoreCase("Character") || content.equalsIgnoreCase("Char") ) {
                     content = "char";
                     Token t = new Token(TokenType.Character, content);
+                    tokenHash.put(order, t);
+                    order++;
+                } else if (bucket == '\n') {
+                    content = "\n";
+                    Token t = new Token(TokenType.NewLine, content);
                     tokenHash.put(order, t);
                     order++;
                 } else {

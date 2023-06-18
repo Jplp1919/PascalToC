@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import pascaltoc.lexer.Lexer;
 import pascaltoc.lexer.Token;
 import pascaltoc.lexer.TokenType;
+import pascaltoc.translator.Translator;
 
 public class Parser {
 
@@ -15,18 +16,22 @@ public class Parser {
     String programName;
     ArrayList<String> libraries = new ArrayList<>();
     ArrayList<Var> vars = new ArrayList<>();
-
+    ArrayList<Function> functions = new ArrayList<>();
+    StringBuilder stb = new StringBuilder();
     int varPosition = 1;
 
     public void programStart() throws IncorrectGrammarException {
         if (!"Program".equals(tokenBucket.getType())) {
             throw new IncorrectGrammarException("PROGRAM WAS EXPECTED");
         } else {
+            stb.append("/* program ");
             position++;
             tokenBucket = tokens.get(position);
+
             if (tokenBucket.getType().equals("String")) {
                 programName = tokenBucket.getContent();
-
+                programName = programName + " */";
+                stb.append(programName);
                 position++;
                 tokenBucket = tokens.get(position);
 
@@ -54,9 +59,7 @@ public class Parser {
 
                 this.usesMaker();
             }
-
         }
-
         tokenBucket = tokens.get(position);
 
         if ("Var".equals(tokenBucket.getType())) {
@@ -64,81 +67,129 @@ public class Parser {
 
                 this.varMaker();
             }
+            position++;
+            tokenBucket = tokens.get(position);
+            if (tokenBucket.getType().equals("String")) {
+                position--;
+                tokenBucket = tokens.get(position);
 
-        }
-        if ("Function".equals(tokenBucket.getType())) {
-            while (!tokenBucket.getType().equals("EndPoint")) {
+                this.varMaker();
+                position++;
+                tokenBucket = tokens.get(position);
+            } else if (tokenBucket.getType().equals("Begin")) {
+                //statement
+                // yeah i know it is not very descritive, but i know what it means
+            } else if (tokenBucket.getType().equals("Function")) {
                 this.functionMaker();
             }
         }
-    }
-
-    public void functionParamName(Function f){
-        if (tokenBucket.getType().equals("Comma")) {
-                //next param name 
-                position++;
-                tokenBucket = tokens.get(position);
-                if (tokenBucket.getType().equals("String")) {
-                    f.addName(tokenBucket.getContent());
-                    position++;
-                    tokenBucket = tokens.get(position);
-                } else {
-                    throw new IncorrectGrammarException("EXPECTED PARAM NAME");
-                }
-            } else if (tokenBucket.getType().equals("EndPoint")){
-            
-            }else {
-                throw new IncorrectGrammarException("EXPECTED Comma");
-            }
-    }
-    
-    public void functionParam(Function f) throws IncorrectGrammarException {
         tokenBucket = tokens.get(position);
 
-        //if : = type
-        //if string paramName
+        if ("Function".equals(tokenBucket.getType())) {
+
+            //while (!tokenBucket.getType().equals("EndPoint")) {
+            this.functionMaker();
+
+            //
+        }
+    }
+
+    public void functionParamName(Function f) throws IncorrectGrammarException {
+        // while (!tokenBucket.getType().equals("TwoPoints")) {
+        Var v = new Var();
         if (tokenBucket.getType().equals("String")) {
+
+            // v.setName(tokenBucket.getContent());
             f.addName(tokenBucket.getContent());
-            if (tokenBucket.getType().equals("TwoPoints")) {
-                position++;
-                tokenBucket = tokens.get(position);
-                // get type
-            } else if (tokenBucket.getType().equals("Comma")) {
+            position++;
+            tokenBucket = tokens.get(position);
+
+            if (tokenBucket.getType().equals("Comma")) {
                 //next param name 
                 position++;
                 tokenBucket = tokens.get(position);
                 if (tokenBucket.getType().equals("String")) {
-                    // comma or twopoints
+                    //v.setName(tokenBucket.getContent());
                     f.addName(tokenBucket.getContent());
                     position++;
                     tokenBucket = tokens.get(position);
                 } else {
-                    throw new IncorrectGrammarException("EXPECTED PARAM NAME");
+                    throw new IncorrectGrammarException("EXPECTED NAME");
                 }
+            } else if (tokenBucket.getType().equals("TwoPoints")) {
+
+                position++;
+                tokenBucket = tokens.get(position);
+                this.functionParamType(f);
+                //System.out.println(tokenBucket.getContent());
+
+            } else if (tokenBucket.getType().equals("EndPoint")) {
+                // System.out.println("it ends");
+
             } else {
-                throw new IncorrectGrammarException("EXPECTED Comma");
+                throw new IncorrectGrammarException("EXPECTED COMMA");
             }
+        }
+        //}
+        /* if (tokenBucket.getType().equals("TwoPoints")) {
+            position++;
+            tokenBucket = tokens.get(position);
+            this.functionParamType(f);
+        }*/
+    }
+
+    public void functionParamType(Function f) throws IncorrectGrammarException {
+    if (tokenBucket.getType().equals("String") || tokenBucket.getType().equals("StringType")) {
+            f.addType(varType.String);
+        } else if (tokenBucket.getType().equals("Integer")) {
+            f.addType(varType.Integer);
+        } else if (tokenBucket.getType().equals("Real")) {
+            f.addType(varType.Real);
+        } else if (tokenBucket.getType().equals("Character")) {
+            f.addType(varType.Character);
+        } else if (tokenBucket.getType().equals("Boolean")) {
+            f.addType(varType.Boolean);
         } else {
-            throw new IncorrectGrammarException("EXPECTED FIRST PARAM NAME");
+            throw new IncorrectGrammarException("TYPE NOT FOUND");
+        }
+    }
+
+    public void functionType(Function f) throws IncorrectGrammarException {
+        if (tokenBucket.getType().equals("String") || tokenBucket.getType().equals("StringType")) {
+            f.setReturnType(varType.String);
+        } else if (tokenBucket.getType().equals("Integer")) {
+            f.setReturnType(varType.Integer);
+        } else if (tokenBucket.getType().equals("Real")) {
+            f.setReturnType(varType.Real);
+        } else if (tokenBucket.getType().equals("Character")) {
+            f.setReturnType(varType.Character);
+        } else if (tokenBucket.getType().equals("Boolean")) {
+            f.setReturnType(varType.Boolean);
+        } else {
+            throw new IncorrectGrammarException("TYPE NOT FOUND");
         }
     }
 
     public void functionMaker() throws IncorrectGrammarException {
         String name;
+        Function f = new Function();
         position++;
         tokenBucket = tokens.get(position);
+
         if (tokenBucket.getType().equals("String")) {
             name = tokenBucket.getContent();
+            f.setFunctionName(name);
+
             position++;
             tokenBucket = tokens.get(position);
 
             if (tokenBucket.getType().equals("OpenParentheses")) {
+
                 position++;
                 tokenBucket = tokens.get(position);
 
-                while (!tokenBucket.getType().equals("TwoPoints")) {
-                  
-                }
+                functionParamName(f);
+
             } else {
                 throw new IncorrectGrammarException("EXPECTED (");
             }
@@ -150,14 +201,18 @@ public class Parser {
 
     public void usesMaker() throws IncorrectGrammarException {
         String name;
+
+        stb.append("\n #include ");
         position++;
         tokenBucket = tokens.get(position);
 
-        if (tokenBucket.getType().equals("String")) {
+        if (tokenBucket.getType().equals("String") || tokenBucket.getType().equals("Input") || tokenBucket.getType().equals("Output")) {
 
             name = tokenBucket.getContent();
 
             libraries.add(name);
+            stb.append(name);
+            //stb.append(System.getProperty("line.separator"));
             position++;
             tokenBucket = tokens.get(position);
 
@@ -187,26 +242,32 @@ public class Parser {
             v.setName(name);
             position++;
             tokenBucket = tokens.get(position);
+
             if (tokenBucket.getType().equals("TwoPoints")) {
+
                 position++;
                 tokenBucket = tokens.get(position);
 
                 if (tokenBucket.getType().equals("StringType")) {
                     v.setType(varType.String);
                 } else if (tokenBucket.getType().equals("Real")) {
+                    v.setContent(tokenBucket.getContent());
                     v.setType(varType.Real);
                 } else if (tokenBucket.getType().equals("Integer")) {
                     v.setType(varType.Integer);
+                } else if (tokenBucket.getType().equals("Number")) {
+                    v.setType(varType.Integer);
+                    v.setContent(tokenBucket.getContent());
                 } else if (tokenBucket.getType().equals("Character")) {
                     v.setType(varType.Character);
                 } else if (tokenBucket.getType().equals("String")) {
+                    v.setContent(tokenBucket.getContent());
                     v.setType(varType.String);
                 } else {
                     throw new IncorrectGrammarException("TYPE NOT FOUND");
                 }
                 v.setPosition(varPosition);
                 varPosition++;
-
                 vars.add(v);
 
             } else {
@@ -222,12 +283,31 @@ public class Parser {
 
     }
 
+    public void codeFinisher() throws IncorrectGrammarException {
+        if (tokenBucket.getType().equals("While")) {
+            stb.append(tokenBucket.getContent());
+            stb.append(" (");
+            position++;
+            tokenBucket = tokens.get(position);
+            if (tokenBucket.getType().equals("String")) {
+
+            }
+
+        } else if (tokenBucket.getType().equals("Begin")) {
+            stb.append(tokenBucket.getContent());
+            position++;
+            tokenBucket = tokens.get(position);
+        }
+
+    }
+
     public void parse(String code) throws IncorrectGrammarException {
 
         Lexer lexi = new Lexer();
         tokens = lexi.scan(code);
-        StringBuilder stb = new StringBuilder();
+        Translator t = new Translator();
 
+        // t.translate(tokens);
         /* for (int i = 1; i < tokens.size(); i++) {
             tokenBucket = tokens.get(i);
             //System.out.println(tokenBucket.getContent());
@@ -238,6 +318,30 @@ public class Parser {
 
         programStart();
         usesVarFunction();
+        // System.out.println(tokenBucket.getContent());
+
+        for (int i = 0; i < vars.size(); i++) {
+            stb.append('\n');
+            Var v = new Var();
+            v = vars.get(i);
+            String append = v.getType() + " " + v.getName();
+            if (v.getContent() != null) {
+                append = append + " " + v.getContent();
+            }
+
+            stb.append(append);
+
+        }
+
+        for (int i = 0; i < functions.size(); i++) {
+            stb.append('\n');
+            Function f = new Function();
+            f = functions.get(i);
+
+        }
+
+        // System.out.println(stb);
+        //System.out.println(tokenBucket.getContent());
     }
 
 }
