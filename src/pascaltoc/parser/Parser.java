@@ -406,13 +406,17 @@ public class Parser {
                 this.statementMaker();
 
                 if (tokenBucket.getType().equals("EndPoint")) {
-
+                   
                     stb.append(tokenBucket.getContent());
                     stb.append("\n");
 
                 } else if (tokenBucket.getType().equals("While")) {
                     this.statementMaker();
-                } else {
+               
+                } else if(tokenBucket.getType().equals("End")) {
+                break;
+                
+                }else {
 
                     stb.append(tokenBucket.getContent());
                     //System.out.println(tokenBucket.getContent());
@@ -436,7 +440,7 @@ public class Parser {
 
         Lexer lexi = new Lexer();
         tokens = lexi.scan(code);
-
+        System.out.println("LEXED");
         tokenBucket = tokens.get(position);
 
         programStart();
@@ -495,8 +499,15 @@ public class Parser {
 
         while (!tokenBucket.getType().equals("End")) {
             statementMaker();
+            System.out.println(tokenBucket.getContent());
+            System.out.println(tokenBucket.getType());
+            if(!tokenBucket.getType().equals("End")){
             position++;
             tokenBucket = tokens.get(position);
+            System.out.println(tokenBucket.getContent());
+            }else{
+              stb.append("}");  
+            }
         }
 
         System.out.println(stb);

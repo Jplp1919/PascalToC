@@ -47,7 +47,7 @@ public class PascalToC {
                 +""
                 + "end.";*/
 
-        String code = "program whileLoop;\n"
+ /*  String code = "program whileLoop;\n"
                 + "var\n"
                 + "   a: integer;\n"
                 + "\n"
@@ -59,7 +59,15 @@ public class PascalToC {
                 + "      writeln('value of a: ', a);\n"
                 + "      a := a + 1;\n"
                 + "   end;\n"
-                + "end.";
+                + "end.";*/
+        String code = "program HelloWorld;\n"
+                + "uses crt;\n"
+                + "\n"
+                + "(* Here the main program block starts *)\n"
+                + "begin\n"
+                + "   writeln('Hello, World ');\n"
+                + "   readkey;\n"
+                + "end";
         CodePrep prep = new CodePrep();
         String goodcode = prep.lexer(code);
         // System.out.println(goodcode);

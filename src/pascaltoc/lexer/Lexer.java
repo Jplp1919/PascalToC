@@ -54,7 +54,7 @@ public class Lexer {
         Hashtable<Integer, Token> tokenHash = new Hashtable<>();
 
         while (position < s.length()) {
-
+             
             for (;; read()) {
                 if (bucket == ' ' || bucket == '\t') {
                     //continue;
@@ -168,6 +168,12 @@ public class Lexer {
                 tokenHash.put(order, t);
                 order++;
                 read();
+            } else if (bucket == '!') {
+                content = "!";
+                Token t = new Token(TokenType.Exclamation, content);
+                tokenHash.put(order, t);
+                order++;
+                read();
             } else if (bucket == '>') {
                 content = ">";
                 Token t = new Token(TokenType.Greater, content);
@@ -179,7 +185,7 @@ public class Lexer {
 
                 stb.append(bucket);
 
-                while (Character.isAlphabetic(bucket) || Character.isDigit(bucket) && position < code.length()) {
+                while (Character.isAlphabetic(bucket)&& position < code.length() || Character.isDigit(bucket) && position < code.length()) {
                     read();
                     if (Character.isAlphabetic(bucket) || Character.isDigit(bucket) && position < code.length()) {
                         stb.append(bucket);
