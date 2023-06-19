@@ -11,30 +11,8 @@ public class Lexer {
     int order = 1;
     private char peek = ' ';
     String code = "";
-    private ArrayList<String> keywords;
 
     //private Hashtable<Integer, Token> tokenHash = new Hashtable<>();
-    private void reserve(String kword) {
-        keywords.add(kword);
-    }
-
-    private void reserveKeywords() {
-        //reserve("equal");
-        // reserve("not");
-        reserve("begin");
-        reserve("end");
-        reserve("or");
-        reserve("not");
-        reserve("mod");
-        reserve("div");
-        reserve("case");
-        reserve("record");
-        reserve("integer");
-        reserve("real");
-        reserve("input");
-        reserve("output");
-    }
-
     public void read() throws IndexOutOfBoundsException {
         bucket = Character.toLowerCase(code.charAt(position));
         //System.out.println("In the bucket " + bucket);
@@ -128,17 +106,19 @@ public class Lexer {
 
             } else if (bucket == '<') {
                 if (read('>')) {
-
                     //content = "<>";
                     content = "!=";
                     Token t = new Token(TokenType.NotEqual, content);
                     tokenHash.put(order, t);
                     order++;
-
                     if (position < s.length()) {
                         read();
-
                     }
+                } else {
+                    content = "<";
+                    Token t = new Token(TokenType.Lesser, content);
+                    tokenHash.put(order, t);
+                    order++;
                 }
             } else if (bucket == ':') {
                 if (read('=')) {
@@ -188,14 +168,20 @@ public class Lexer {
                 tokenHash.put(order, t);
                 order++;
                 read();
-            } else if (Character.isAlphabetic(bucket)) {
+            } else if (bucket == '>') {
+                content = ">";
+                Token t = new Token(TokenType.Greater, content);
+                tokenHash.put(order, t);
+                order++;
+                read();
+            }else if (Character.isAlphabetic(bucket)) {
                 StringBuilder stb = new StringBuilder();
 
                 stb.append(bucket);
 
                 while (Character.isAlphabetic(bucket) || Character.isDigit(bucket) && position < code.length()) {
                     read();
-                    if (Character.isAlphabetic(bucket)|| Character.isDigit(bucket) && position < code.length()) {
+                    if (Character.isAlphabetic(bucket) || Character.isDigit(bucket) && position < code.length()) {
                         stb.append(bucket);
                     }
 
@@ -279,7 +265,27 @@ public class Lexer {
                     Token t = new Token(TokenType.Integer, content);
                     tokenHash.put(order, t);
                     order++;
-                } else if (content.equalsIgnoreCase("real")) {
+                } else if (content.equalsIgnoreCase("do")) {
+                    content = "\n";
+                    Token t = new Token(TokenType.Do, content);
+                    tokenHash.put(order, t);
+                    order++;
+                } else if (content.equalsIgnoreCase("if")) {
+                    content = "if";
+                    Token t = new Token(TokenType.If, content);
+                    tokenHash.put(order, t);
+                    order++;
+                } else if (content.equalsIgnoreCase("then")) {
+                    content = "{";
+                    Token t = new Token(TokenType.Then, content);
+                    tokenHash.put(order, t);
+                    order++;
+                } else if (content.equalsIgnoreCase("else")) {
+                    content = "else";
+                    Token t = new Token(TokenType.Else, content);
+                    tokenHash.put(order, t);
+                    order++;
+                }else if (content.equalsIgnoreCase("real")) {
                     //real
                     content = "float";
                     Token t = new Token(TokenType.Real, content);
@@ -320,7 +326,7 @@ public class Lexer {
                     Token t = new Token(TokenType.StringType, content);
                     tokenHash.put(order, t);
                     order++;
-                } else if (content.equalsIgnoreCase("Character") || content.equalsIgnoreCase("Char") ) {
+                } else if (content.equalsIgnoreCase("Character") || content.equalsIgnoreCase("Char")) {
                     content = "char";
                     Token t = new Token(TokenType.Character, content);
                     tokenHash.put(order, t);

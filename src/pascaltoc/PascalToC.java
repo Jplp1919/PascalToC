@@ -15,10 +15,10 @@ public class PascalToC {
 
         //lex.scan("22aa :=33<>");
         Parser pedro = new Parser();
-       pedro.parse("program pname; uses libone, libtwo; var varname : string; nametoo :  2.9; "
+        /* pedro.parse("program pname; uses libone, libtwo; var varname : string; nametoo :  2.9; "
                 + "function functionname (argumentname, argumentsecond, thirdone3: real; second: boolean ) : Integer;");
-
-        /*String code = "program number;\n"
+         */
+ /* String code = "program number;\n"
                 + " (* add line numbers to each line of an input file *)\n"
                 +"uses input, output;"
                 + "var\n"
@@ -30,6 +30,9 @@ public class PascalToC {
                 + "	while not eof(input)\n"
                 + "	   do begin\n"
                 + "			n := n + 1;\n"
+                +"if (testing this) then "
+                + "s1 "
+                + "end;"
                 + "			write (n:6,' ');\n"
                 + "\n"
                 + "			while not eoln (input)\n"
@@ -40,11 +43,27 @@ public class PascalToC {
                 + "			writeln;\n"
                 + "			readln;\n"
                 + "		end;\n"
+               
+                +""
+                + "end.";*/
+
+        String code = "program whileLoop;\n"
+                + "var\n"
+                + "   a: integer;\n"
+                + "\n"
+                + "begin\n"
+                + "   a := 10;\n"
+                + "   while a < 20  do\n"
+                + "   \n"
+                + "   begin\n"
+                + "      writeln('value of a: ', a);\n"
+                + "      a := a + 1;\n"
+                + "   end;\n"
                 + "end.";
         CodePrep prep = new CodePrep();
         String goodcode = prep.lexer(code);
-       // System.out.println(goodcode);
-        pedro.parse(goodcode); */
+        // System.out.println(goodcode);
+        pedro.parse(goodcode);
         //lex.scan("program butts; var varname : vartype;  2.9;");
     }
 

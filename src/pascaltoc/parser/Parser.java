@@ -112,7 +112,7 @@ public class Parser {
 
                 } else if (tokenBucket.getType().equals("TwoPoints")) {
                     f.addName(paramNames);
-                    System.out.println(paramNames);
+
                     paramNames = "";
                     position++;
                     tokenBucket = tokens.get(position);
@@ -211,14 +211,23 @@ public class Parser {
 
                 functionParamName(f);
                 functions.add(f);
-                System.out.println("ADDED 1");
+
             } else {
                 throw new IncorrectGrammarException("EXPECTED (");
             }
         } else {
             throw new IncorrectGrammarException("FUNCTION NAME");
         }
+        position++;
+        tokenBucket = tokens.get(position);
 
+        if (tokenBucket.getType().equals("Begin")) {
+            position++;
+            tokenBucket = tokens.get(position);
+            while (!tokenBucket.getType().equals("End")) {
+                statementMaker();
+            }
+        }
     }
 
     public void usesMaker() throws IncorrectGrammarException {
@@ -305,20 +314,120 @@ public class Parser {
 
     }
 
-    public void codeFinisher() throws IncorrectGrammarException {
+    public void statementMaker() throws IncorrectGrammarException {
+
         if (tokenBucket.getType().equals("While")) {
+
+            stb.append("\n");
             stb.append(tokenBucket.getContent());
             stb.append(" (");
             position++;
             tokenBucket = tokens.get(position);
-            if (tokenBucket.getType().equals("String")) {
+            if (!tokenBucket.getType().equals("(")) {
+                while (!tokenBucket.getType().equals("Do")) {
+                    stb.append(tokenBucket.getContent());
+                    position++;
+                    tokenBucket = tokens.get(position);
+                    //System.out.println(tokenBucket.getContent());
+                    //System.out.println(tokenBucket.getType());
+                }
+                stb.append(" ) {");
+                stb.append("\n");
+                position++;
+                tokenBucket = tokens.get(position);
+
+            } else {
+                tokenBucket = tokens.get(position);
+                stb.append(tokenBucket.getContent());
 
             }
 
-        } else if (tokenBucket.getType().equals("Begin")) {
+            if (tokenBucket.getType().equals("Begin")) {
+                while (!tokenBucket.getType().equals("End")) {
+                    position++;
+                    tokenBucket = tokens.get(position);
+
+                    this.statementMaker();
+
+                    if (tokenBucket.getType().equals("EndPoint")) {
+
+                        stb.append(tokenBucket.getContent());
+                        stb.append("\n");
+
+                    } else if (tokenBucket.getType().equals("While")) {
+                        this.statementMaker();
+                    } else {
+
+                        stb.append(tokenBucket.getContent());
+                        //System.out.println(tokenBucket.getContent());
+                    }
+
+                }
+
+            }
+
+        } else if (tokenBucket.getType().equals("If")) {
+            stb.append('\n');
             stb.append(tokenBucket.getContent());
             position++;
             tokenBucket = tokens.get(position);
+            stb.append(" (");
+            if (tokenBucket.getType().equals("OpenParentheses")) {
+                // position++;
+                // tokenBucket = tokens.get(position);
+                while (!tokenBucket.getType().equals("CloseParentheses")) {
+                    position++;
+                    tokenBucket = tokens.get(position);
+
+                    stb.append(tokenBucket.getContent());
+                    stb.append(" ");
+
+                }
+
+                stb.append(" ");
+            } else {
+
+            }
+
+        } else if (tokenBucket.getType().equals("EndPoint")) {
+            //stb.append("\n");
+
+        } else if (tokenBucket.getType().equals("Begin")) {
+            stb.append("\n ");
+             stb.append(tokenBucket.getContent());
+            //position++;
+            //tokenBucket = tokens.get(position);
+            // System.out.println(tokenBucket.getContent());
+
+            while (!tokenBucket.getType().equals("End")) {
+                position++;
+                tokenBucket = tokens.get(position);
+
+                this.statementMaker();
+
+                if (tokenBucket.getType().equals("EndPoint")) {
+
+                    stb.append(tokenBucket.getContent());
+                    stb.append("\n");
+
+                } else if (tokenBucket.getType().equals("While")) {
+                    this.statementMaker();
+                } else {
+
+                    stb.append(tokenBucket.getContent());
+                    //System.out.println(tokenBucket.getContent());
+                }
+
+            }
+        } else if (tokenBucket.getType().equals("String")) {
+            stb.append(" ");
+            stb.append(tokenBucket.getContent());
+            position++;
+            tokenBucket = tokens.get(position);
+        } else {
+
+            stb.append(" ");
+             //stb.append(tokenBucket.getContent());
         }
 
     }
@@ -327,15 +436,7 @@ public class Parser {
 
         Lexer lexi = new Lexer();
         tokens = lexi.scan(code);
-        Translator t = new Translator();
 
-        // t.translate(tokens);
-        /* for (int i = 1; i < tokens.size(); i++) {
-            tokenBucket = tokens.get(i);
-            //System.out.println(tokenBucket.getContent());
-           // System.out.println(tokenBucket.getType());
-            System.out.println( tokenBucket.getContent() + " AT --- " +i );
-        }*/
         tokenBucket = tokens.get(position);
 
         programStart();
@@ -348,7 +449,9 @@ public class Parser {
             v = vars.get(i);
             String append = v.getType() + " " + v.getName();
             if (v.getContent() != null) {
-                append = append + " " + v.getContent();
+                append = append + " " + v.getContent() + ";";
+            } else {
+                append = append + ";";
             }
 
             stb.append(append);
@@ -357,7 +460,7 @@ public class Parser {
 
         for (int i = 0; i < functions.size(); i++) {
             String functionContent = "";
-            System.out.println("inside");
+
             stb.append('\n');
             Function f = new Function();
             f = functions.get(i);
@@ -373,29 +476,35 @@ public class Parser {
                     String st = typeList.get(j).toString();
                     String s = list.get(j);
                     String[] splited = s.split("\\s+");
-           
-                    System.out.println(splited.length);
+
                     s = "";
                     for (int k = 0; k < splited.length; k++) {
                         s = s + " " + st + " " + splited[k];
-                        
-                       if(j+1 != list.size()){
-                           s = s + ",";
-                       }   
+
+                        if (j + 1 != list.size()) {
+                            s = s + ",";
+                        }
                     }
                     functionContent = functionContent + s;
-
                 }
-                append = append + " (" + functionContent + ")" + " :";
+                append = append + " (" + functionContent + ")" + " {\n";
                 //System.out.println(list.get(i));
             }
-
             stb.append(append);
+        }
 
+        while (!tokenBucket.getType().equals("End")) {
+            statementMaker();
+            position++;
+            tokenBucket = tokens.get(position);
         }
 
         System.out.println(stb);
         //System.out.println(tokenBucket.getContent());
+    }
+
+    public String getStb() {
+        return stb.toString();
     }
 
 }

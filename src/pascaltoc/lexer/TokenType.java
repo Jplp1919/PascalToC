@@ -8,6 +8,6 @@ public enum TokenType {
     Case, Integer, Real, Input, Output,Var, While, Plus, 
     Minus, EndPoint, Uses, Function, TwoPoints, Boolean, 
     StringType, Character, Comma, OpenParentheses, CloseParentheses, 
-    NewLine, Apostrophe
+    NewLine, Apostrophe, Do, If, Then, Else, Lesser, Greater
     
 }

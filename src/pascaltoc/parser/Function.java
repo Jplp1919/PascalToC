@@ -11,7 +11,7 @@ public class Function {
     ArrayList<String> names = new ArrayList<>();
     varType returnType;
     //ArrayList<Var> parameters = new ArrayList<>();
-    ArrayList<varType> parametersTypes = new ArrayList<>();
+    ArrayList <varType> parametersTypes = new ArrayList<>();
     String functionName;
 
     public String getFunctionName() {
